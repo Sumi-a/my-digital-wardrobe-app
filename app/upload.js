@@ -1,11 +1,127 @@
+// import React, { useState, useEffect } from "react";
+// import {
+//   View,
+//   Text,
+//   Button,
+//   Image,
+//   StyleSheet,
+//   Alert,
+//   ScrollView,
+// } from "react-native";
+// import * as ImagePicker from "expo-image-picker";
+// import { useRouter } from "expo-router";
+// import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+// import { storage } from "./firebase"; // Assuming your firebase.js exports `storage`
+
+// const Upload = () => {
+//   const [images, setImages] = useState([]); // useState to manage image URLs
+//   const router = useRouter();
+
+//   // Requesting permission to access the gallery
+//   useEffect(() => {
+//     (async () => {
+//       const { status } =
+//         await ImagePicker.requestMediaLibraryPermissionsAsync();
+//       if (status !== "granted") {
+//         Alert.alert(
+//           "Permission Denied",
+//           "We need access to your camera roll to make this work!"
+//         );
+//       }
+//     })();
+//   }, []);
+
+//   // Function to pick an image from the gallery and upload it to Firebase
+//   const pickImage = async () => {
+//     let result = await ImagePicker.launchImageLibraryAsync({
+//       mediaTypes: ImagePicker.MediaTypeOptions.Images,
+//       allowsEditing: true,
+//       aspect: [4, 3],
+//       quality: 1,
+//     });
+
+//     if (!result.canceled && result.assets && result.assets.length > 0) {
+//       const uri = result.assets[0].uri;
+//       const response = await fetch(uri);
+//       const blob = await response.blob();
+
+//       try {
+//         // Create a Firebase Storage reference
+//         const storageRef = ref(storage, `images/${Date.now()}`);
+//         console.log("Storage reference created:", storageRef);
+
+//         // Upload image blob to Firebase Storage
+//         const snapshot = await uploadBytes(storageRef, blob);
+//         console.log("Uploaded a blob or file!", snapshot);
+
+//         // Retrieve the download URL after upload
+//         getDownloadURL(snapshot.ref).then((downloadURL) => {
+//           console.log("File available at", downloadURL);
+//           setImages([...images, downloadURL]); // Add the download URL to the images array
+//         });
+//       } catch (error) {
+//         console.error("Error uploading image to Firebase:", error);
+//       }
+//     } else {
+//       console.log("No image selected or image picker was canceled.");
+//     }
+//   };
+
+//   return (
+//     <View style={styles.container}>
+//       <Text style={styles.text}>Upload a Picture</Text>
+
+//       <Button title="Pick an image from gallery" onPress={pickImage} />
+
+//       {/* Display the uploaded images */}
+//       <ScrollView>
+//         {images.length > 0 ? (
+//           images.map((imageUri, index) => (
+//             <Image
+//               key={index}
+//               source={{ uri: imageUri }} // Use the download URL as the source
+//               style={styles.image}
+//             />
+//           ))
+//         ) : (
+//           <Text>No images uploaded yet.</Text>
+//         )}
+//       </ScrollView>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     padding: 20,
+//   },
+//   text: {
+//     fontSize: 20,
+//     marginBottom: 20,
+//   },
+//   image: {
+//     width: 200,
+//     height: 200,
+//     marginTop: 150,
+//     borderRadius: 20,
+//     borderWidth: 2,
+//     borderColor: "#ccc",
+//   },
+// });
+
+// export default Upload;
+
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, Image, StyleSheet } from "react-native";
+import { View, Text, Button, Image, FlatList, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useRouter } from "expo-router";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "./firebase"; // Your Firebase configuration
 
 const Upload = () => {
-  const [images, setImages] = useState([]);
-  const router = useRouter();
+  const [images, setImages] = useState([]); // Array to store uploaded image URLs
 
   useEffect(() => {
     (async () => {
@@ -25,41 +141,48 @@ const Upload = () => {
       quality: 1,
     });
 
-    console.log("ImagePicker result:", result);
-
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const uri = result.assets[0].uri;
-      setImages([...images, uri]);
-      console.log("Uploaded image:", uri);
-    } else {
-      console.log("No image selected or image picker was canceled.");
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      // Create a Firebase Storage reference
+      const storageRef = ref(storage, `images/${Date.now()}`);
+
+      // Upload image to Firebase
+      uploadBytes(storageRef, blob)
+        .then((snapshot) => {
+          console.log("Uploaded a blob or file!");
+
+          // Get the download URL of the uploaded image
+          getDownloadURL(snapshot.ref).then((downloadURL) => {
+            console.log("File available at", downloadURL);
+
+            // Add the URL to the images array
+            setImages([...images, downloadURL]); // Add the URL to state
+          });
+        })
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+        });
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Upload a Picture</Text>
-      <Button title="Pick an image from gallery" onPress={pickImage} />
-      {}
-      {images.length > 0 && (
-        <Button
-          title="View Uploaded Images"
-          onPress={() => {
-            console.log("Navigating with images:", images);
+      <Text style={styles.title}>Upload and View Images</Text>
 
-            //router.push({ pathname: "/ImagesScreen", params: { images } });
-            router.push({ name: "ImagesScreen", params: { images } });
-            console.log("Navigation to ImagesScreen attempted");
-          }}
-        />
-      )}
-      {}
-      {images.length > 0 && (
-        <Image
-          source={{ uri: images[images.length - 1] }}
-          style={styles.image}
-        />
-      )}
+      {/* Button to pick and upload an image */}
+      <Button title="Pick an image from gallery" onPress={pickImage} />
+
+      {/* Display the uploaded images */}
+      <FlatList
+        data={images}
+        keyExtractor={(item, index) => index.toString()} // Use index as key
+        renderItem={({ item }) => (
+          <Image source={{ uri: item }} style={styles.image} />
+        )}
+      />
     </View>
   );
 };
@@ -69,15 +192,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
-  text: {
+  title: {
     fontSize: 20,
     marginBottom: 20,
   },
   image: {
     width: 200,
     height: 200,
-    marginTop: 20,
+    marginTop: 150,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: "#ccc",
   },
 });
 
