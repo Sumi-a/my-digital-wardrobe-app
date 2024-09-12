@@ -3,7 +3,6 @@
     "name": "my-digital-wardrobe-app",
     "slug": "my-digital-wardrobe-app",
     "version": "1.0.0",
-    "entryPoint": "./index.js",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
