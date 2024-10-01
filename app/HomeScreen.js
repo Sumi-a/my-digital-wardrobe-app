@@ -1,8 +1,9 @@
 import { View, Text, Button, StyleSheet } from "react-native";
-//import { useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 
 const HomeScreen = () => {
   const router = useRouter();
+
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Your Digital Wardrobe</Text>
