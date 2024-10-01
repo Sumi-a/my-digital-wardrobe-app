@@ -1,7 +1,7 @@
 import { View, Text, Button, StyleSheet } from "react-native";
-// import { useRouter } from "expo-router";
+//import { useRouter } from "expo-router";
 
-const Home = () => {
+const HomeScreen = () => {
   const router = useRouter();
   return (
     <View style={styles.container}>
@@ -26,4 +26,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default HomeScreen;
