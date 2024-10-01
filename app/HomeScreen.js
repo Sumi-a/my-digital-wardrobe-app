@@ -1,5 +1,5 @@
 import { View, Text, Button, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+// import { useRouter } from "expo-router";
 
 const Home = () => {
   const router = useRouter();

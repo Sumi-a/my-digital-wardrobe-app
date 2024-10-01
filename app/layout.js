@@ -1,8 +1,9 @@
 import { Stack } from "expo-router";
-import Home from "./index";
+import Home from "./HomeScreen";
 import Upload from "./upload";
 import ImagesScreen from "./ImagesScreen";
 import GalleryScreen from "./GalleryScreen"; // New screen
+import SignUpScreen from "./SignUpScreen";
 
 const Layout = () => {
   return (
@@ -21,6 +22,7 @@ const Layout = () => {
       <Stack.Screen name="Upload" component={Upload} />
       <Stack.Screen name="ImagesScreen" component={ImagesScreen} />
       <Stack.Screen name="GalleryScreen" component={GalleryScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
     </Stack>
   );
 };
