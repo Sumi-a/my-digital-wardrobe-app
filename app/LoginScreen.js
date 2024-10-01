@@ -29,7 +29,7 @@ const LoginScreen = ({ isLoggedIn }) => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("Logged in:", user);
-        router.push("/home"); // Ensure this is the correct path for your Home screen
+        router.push("/HomeScreen"); // Ensure this is the correct path for your Home screen
       })
       .catch((error) => {
         // Provide a user-friendly error message
