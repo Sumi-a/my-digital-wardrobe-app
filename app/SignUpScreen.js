@@ -5,6 +5,8 @@ import { auth } from "./firebase"; // Ensure correct path
 import { useRouter } from "expo-router"; // Use router for navigation
 
 const SignUpScreen = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -32,6 +34,18 @@ const SignUpScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="First Name"
+        value={firstName}
+        onChangeText={setFirstName}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Last Name"
+        value={lastName}
+        onChangeText={setLastName}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
