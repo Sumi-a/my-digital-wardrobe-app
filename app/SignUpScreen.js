@@ -47,6 +47,10 @@ const SignUpScreen = () => {
       />
       {error && <Text style={styles.error}>{error}</Text>}
       <Button title="Sign Up" onPress={handleSignUp} disabled={loading} />
+      <Button
+        title="Go Back"
+        onPress={() => router.back()} // Back button
+      />
     </View>
   );
 };
@@ -63,7 +67,7 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: "gray",
+    borderColor: "pink",
     borderWidth: 1,
     marginBottom: 12,
     paddingLeft: 8,

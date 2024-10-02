@@ -112,6 +112,7 @@ import { Picker } from "@react-native-picker/picker";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import { useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
 const screenWidth = Dimensions.get("window").width;
 const numColumns = 2;
@@ -121,6 +122,8 @@ const ImagesScreen = () => {
   const [images, setImages] = useState([]);
   const [category, setCategory] = useState("tops");
   const route = useRoute();
+  const navigation = useNavigation();
+  
 
   useEffect(() => {
     if (route.params?.category) {

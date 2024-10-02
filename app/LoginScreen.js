@@ -11,6 +11,7 @@ const LoginScreen = ({ isLoggedIn }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const router = useRouter();
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
   input: {
     width: "80%",
     padding: 10,
-    borderColor: "#ccc",
+    borderColor: "pink",
     borderWidth: 1,
     marginBottom: 10,
   },
