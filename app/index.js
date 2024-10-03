@@ -16,10 +16,10 @@ const Index = () => {
 
       if (user) {
         // User is logged in, navigate to HomeScreen
-        router.replace("/HomeScreen", { user }); // Use replace to prevent going back to login
+        router.replace("/Screens/HomeScreen", { user }); // Use replace to prevent going back to login
       } else {
         // User is not logged in, navigate to LoginScreen
-        router.replace("/LoginScreen");
+        router.replace("/Screens/LoginScreen");
       }
     });
 

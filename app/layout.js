@@ -48,14 +48,14 @@ import { Stack } from "expo-router";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
-import HomeScreen from "./HomeScreen";
-import Upload from "./upload";
-import ImagesScreen from "./ImagesScreen";
-import GalleryScreen from "./GalleryScreen";
-import LoginScreen from "./LoginScreen";
-import SignUpScreen from "./SignUpScreen";
+import HomeScreen from "./Screens/HomeScreen";
+import Upload from "./Screens/upload";
+import ImagesScreen from "./Screens/ImagesScreen";
+import GalleryScreen from "./Screens//GalleryScreen";
+import LoginScreen from "./Screens/LoginScreen";
+import SignUpScreen from "./Screens/SignUpScreen";
 
-const Layout = () => {
+const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State to manage login status
   const navigation = useNavigation();
 
@@ -96,4 +96,4 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+export default App;

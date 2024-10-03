@@ -60,8 +60,8 @@ import React, { useState, useEffect } from "react";
 import { View, FlatList, Image, StyleSheet, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
-import { useIsFocused } from '@react-navigation/native';
+import { db } from "../firebase";
+import { useIsFocused } from "@react-navigation/native";
 
 const GalleryScreen = () => {
   const [images, setImages] = useState([]);
@@ -74,7 +74,7 @@ const GalleryScreen = () => {
       setLoading(true);
       try {
         const querySnapshot = await getDocs(collection(db, "images"));
-        const imageData = querySnapshot.docs.map(doc => doc.data());
+        const imageData = querySnapshot.docs.map((doc) => doc.data());
         setImages(imageData);
       } catch (error) {
         console.error("Error fetching images:", error);
@@ -130,12 +130,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   image: {
-    width: '48%',
+    width: "48%",
     aspectRatio: 1,
-    margin: '1%',
+    margin: "1%",
     borderRadius: 10,
   },
 });
 
 export default GalleryScreen;
-

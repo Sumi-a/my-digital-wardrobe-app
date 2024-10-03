@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase"; // Ensure correct path
+import { auth } from "../firebase"; // Ensure correct path
 import { useRouter } from "expo-router"; // Use router for navigation
 
 const SignUpScreen = () => {

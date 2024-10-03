@@ -110,7 +110,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "./firebase";
+import { db } from "../firebase";
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -123,7 +123,6 @@ const ImagesScreen = () => {
   const [category, setCategory] = useState("tops");
   const route = useRoute();
   const navigation = useNavigation();
-  
 
   useEffect(() => {
     if (route.params?.category) {

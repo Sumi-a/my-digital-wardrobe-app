@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react"; // Make sure to import useState
 import { signInWithEmailAndPassword } from "firebase/auth"; // Add Firebase imports as needed
-import { auth } from "./firebase"; // Adjust the import to your firebase config
+import { auth } from "../firebase"; // Adjust the import to your firebase config
 
 const LoginScreen = ({ isLoggedIn }) => {
   const [email, setEmail] = useState("");

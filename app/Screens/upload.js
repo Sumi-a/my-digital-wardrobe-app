@@ -14,7 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "expo-router";
-import { storage, db } from "./firebase";
+import { storage, db } from "../firebase";
 
 const Upload = () => {
   const router = useRouter();
@@ -102,7 +102,10 @@ const Upload = () => {
         title="Go Back"
         onPress={() => router.back()} // Back button
       />
-      <Button title="Go to next screen" onPress={() => navigation.navigate("NextScreen")} />
+      <Button
+        title="Go to next screen"
+        onPress={() => navigation.navigate("NextScreen")}
+      />
 
       {uploading && <Text>Uploading...</Text>}
 

@@ -48,7 +48,7 @@
 import React from "react";
 import { View, Text, Button, StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
-import { auth } from "./firebase";
+import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
 
 const HomeScreen = ({ user }) => {
