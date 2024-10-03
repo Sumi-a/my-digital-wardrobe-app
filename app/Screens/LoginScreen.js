@@ -15,13 +15,18 @@ const LoginScreen = ({ isLoggedIn }) => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      router.push("/HomeScreen"); // Ensure this is the correct path for your Home screen
+      router.push("Screens/HomeScreen"); // Ensure this is the correct path for your Home screen
     }
   }, [isLoggedIn]);
 
   const handleLogin = () => {
     if (!email || !password) {
       setError("Please enter both email and password.");
+      // Toast.show({
+      //   type: "error",
+      //   text1: "Input Error",
+      //   text2: "Please enter both email and password.",
+      // });
       return;
     }
 
@@ -30,7 +35,12 @@ const LoginScreen = ({ isLoggedIn }) => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("Logged in:", user);
-        router.push("/HomeScreen"); // Ensure this is the correct path for your Home screen
+        // Toast.show({
+        //   type: "success",
+        //   text1: "Login Successful",
+        //   text2: `Welcome back`,
+        // });
+        router.push("Screens/HomeScreen"); // Ensure this is the correct path for your Home screen
       })
       .catch((error) => {
         // Provide a user-friendly error message
@@ -45,7 +55,12 @@ const LoginScreen = ({ isLoggedIn }) => {
   };
 
   const handleSignup = () => {
-    router.push("/SignUpScreen");
+    router.push("Screens/SignUpScreen");
+    // Toast.show({
+    //   type: "error",
+    //   text1: "Login Failed",
+    //   text2: errorMessage,
+    // });
   };
 
   return (

@@ -21,7 +21,7 @@ const SignUpScreen = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("User created:", user);
-        router.push("/HomeScreen"); // Redirect to HomeScreen
+        router.push("Screens/HomeScreen"); // Redirect to HomeScreen
       })
       .catch((error) => {
         setError(error.message);

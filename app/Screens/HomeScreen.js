@@ -58,7 +58,7 @@ const HomeScreen = ({ user }) => {
     signOut(auth) // Call Firebase signOut
       .then(() => {
         // Sign-out successful, navigate to Login Screen
-        router.replace("/LoginScreen");
+        router.replace("Screens/LoginScreen");
       })
       .catch((error) => {
         console.error("Error signing out: ", error); // Handle error
@@ -72,10 +72,14 @@ const HomeScreen = ({ user }) => {
         Welcome to your digital wardrobe,{" "}
         {user ? user.displayName || user.email : "Guest"}!
       </Text>
-      <Text style={styles.text}>Your Digital Wardrobe</Text>
+      {/* <Text style={styles.text}>Your Digital Wardrobe</Text>
       <Button
         title="Upload here"
-        onPress={() => router.push("/upload")} // Use router to navigate
+        onPress={() => router.push("Screens/upload")} // Use router to navigate
+      /> */}
+      <Button
+        title="Go to next screen"
+        onPress={() => router.push("Screens/upload")}
       />
       <Button
         title="Logout" // Logout Button

@@ -93,18 +93,14 @@ const Upload = () => {
         <Picker.Item label="Bottoms" value="bottoms" />
       </Picker>
 
-      <Button
-        title="Pick an image from gallery"
-        onPress={pickImage}
-        disabled={uploading}
-      />
+      <Button title="Pick an image" onPress={pickImage} disabled={uploading} />
       <Button
         title="Go Back"
         onPress={() => router.back()} // Back button
       />
       <Button
         title="Go to next screen"
-        onPress={() => navigation.navigate("NextScreen")}
+        onPress={() => router.push("Screens/GalleryScreen")}
       />
 
       {uploading && <Text>Uploading...</Text>}

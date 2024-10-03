@@ -39,3 +39,4 @@ isSupported().then((supported) => {
 });
 
 export { db, storage, auth };
+export default app;
