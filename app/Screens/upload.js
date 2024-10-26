@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Button,
   Image,
   StyleSheet,
   Alert,
@@ -11,14 +10,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import { uploadImageToFirebase } from "./firebaseUpload";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const Upload = () => {
   const router = useRouter();
   const [uploadedItems, setUploadedItems] = useState([]);
-  const [category, setCategory] = useState("tops");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,7 +33,7 @@ const Upload = () => {
     }
   };
 
-  const pickImages = async () => {
+  const pickImages = async (category) => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -46,7 +44,6 @@ const Upload = () => {
       if (!result.canceled && result.assets.length > 0) {
         setLoading(true);
 
-        // Upload images sequentially to avoid overwhelming the server
         const uploadedResults = [];
         for (const asset of result.assets) {
           try {
@@ -67,7 +64,7 @@ const Upload = () => {
         setUploadedItems((prev) => [...prev, ...uploadedResults]);
         Alert.alert(
           "Success",
-          `Successfully uploaded ${uploadedResults.length} images`
+          `Successfully uploaded ${uploadedResults.length} ${category}`
         );
       }
     } catch (error) {
@@ -77,10 +74,27 @@ const Upload = () => {
     }
   };
 
-  const clearImages = () => {
-    setUploadedItems([]);
-    Alert.alert("Cleared", "Upload history has been cleared");
-  };
+  const CategoryCard = ({ title, iconName, onPress, disabled }) => (
+    <TouchableOpacity
+      style={[styles.categoryCard, disabled && styles.categoryCardDisabled]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <MaterialIcons
+        name={iconName}
+        size={48}
+        color={disabled ? "#ccc" : "#007AFF"}
+      />
+      <Text
+        style={[styles.categoryTitle, disabled && styles.categoryTitleDisabled]}
+      >
+        {title}
+      </Text>
+      <Text style={[styles.uploadText, disabled && styles.uploadTextDisabled]}>
+        Tap to Upload
+      </Text>
+    </TouchableOpacity>
+  );
 
   const renderUploadedItems = () => {
     if (uploadedItems.length === 0) {
@@ -101,34 +115,19 @@ const Upload = () => {
     <View style={styles.container}>
       <Text style={styles.title}>Wardrobe Upload</Text>
 
-      <View style={styles.controls}>
-        <Picker
-          selectedValue={category}
-          onValueChange={setCategory}
-          style={styles.picker}
-          enabled={!loading}
-        >
-          <Picker.Item label="Tops" value="tops" />
-          <Picker.Item label="Bottoms" value="bottoms" />
-        </Picker>
-
-        <TouchableOpacity
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={pickImages}
+      <View style={styles.categoriesContainer}>
+        <CategoryCard
+          title="Upload Tops"
+          iconName="checkroom"
+          onPress={() => pickImages("tops")}
           disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Uploading..." : "Pick Images"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={clearImages}
+        />
+        <CategoryCard
+          title="Upload Bottoms"
+          iconName="layers"
+          onPress={() => pickImages("bottoms")}
           disabled={loading}
-        >
-          <Text style={styles.buttonText}>Clear History</Text>
-        </TouchableOpacity>
+        />
       </View>
 
       {loading && (
@@ -137,6 +136,17 @@ const Upload = () => {
           <Text style={styles.loadingText}>Uploading images...</Text>
         </View>
       )}
+
+      <View style={styles.historyHeader}>
+        <Text style={styles.historyTitle}>Upload History</Text>
+        <TouchableOpacity
+          onPress={() => setUploadedItems([])}
+          disabled={loading}
+          style={styles.clearButton}
+        >
+          <Text style={styles.clearButtonText}>Clear</Text>
+        </TouchableOpacity>
+      </View>
 
       <ScrollView
         style={styles.scrollView}
@@ -157,7 +167,7 @@ const Upload = () => {
           style={styles.navButton}
           onPress={() => router.push("Screens/GalleryScreen")}
         >
-          <Text style={styles.buttonText}>View Gallery</Text>
+          <Text style={styles.buttonText}>View Selections </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -176,28 +186,65 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 20,
   },
-  controls: {
+  categoriesContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 20,
   },
-  picker: {
-    marginBottom: 10,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-  },
-  button: {
-    backgroundColor: "#007AFF",
-    padding: 15,
-    borderRadius: 8,
-    marginVertical: 5,
+  categoryCard: {
+    flex: 0.48,
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    padding: 20,
     alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#e9ecef",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  buttonDisabled: {
-    backgroundColor: "#ccc",
+  categoryCardDisabled: {
+    backgroundColor: "#f5f5f5",
+    borderColor: "#e0e0e0",
   },
-  buttonText: {
-    color: "#fff",
+  categoryTitle: {
     fontSize: 16,
     fontWeight: "600",
+    color: "#007AFF",
+    marginTop: 12,
+    textAlign: "center",
+  },
+  categoryTitleDisabled: {
+    color: "#ccc",
+  },
+  uploadText: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
+  uploadTextDisabled: {
+    color: "#999",
+  },
+  historyHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  historyTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+  },
+  clearButton: {
+    padding: 8,
+  },
+  clearButtonText: {
+    color: "#007AFF",
+    fontSize: 14,
   },
   loadingContainer: {
     alignItems: "center",
@@ -247,6 +294,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flex: 0.48,
     alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
