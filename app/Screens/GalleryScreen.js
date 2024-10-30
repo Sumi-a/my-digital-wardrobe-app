@@ -173,9 +173,7 @@ const GalleryScreen = () => {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#FF1493" />
-        <Text style={styles.loadingText}>
-          Loading your totally awesome wardrobe...
-        </Text>
+        <Text style={styles.loadingText}>Loading your wardrobe...</Text>
       </View>
     );
   }
