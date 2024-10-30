@@ -1,697 +1,3 @@
-//Swipe Based code
-// import React, { useState, useRef } from "react";
-// import {
-//   View,
-//   Image,
-//   StyleSheet,
-//   TouchableOpacity,
-//   Text,
-//   Alert,
-//   Animated,
-//   Dimensions,
-//   PanResponder,
-// } from "react-native";
-// import { useRouter, useLocalSearchParams, Stack } from "expo-router";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-// import { Ionicons } from "@expo/vector-icons";
-
-// const SCREEN_WIDTH = Dimensions.get("window").width;
-
-// const OutfitCreationScreen = () => {
-//   const router = useRouter();
-//   const params = useLocalSearchParams();
-//   const { topImage, bottomImage } = params;
-//   const [outfits, setOutfits] = useState([]);
-//   const [currentIndex, setCurrentIndex] = useState(0);
-//   const position = useRef(new Animated.ValueXY()).current;
-
-//   React.useEffect(() => {
-//     loadSavedOutfits();
-//     if (!topImage || !bottomImage) {
-//       Alert.alert(
-//         "Missing Images",
-//         "Please select both top and bottom images",
-//         [
-//           {
-//             text: "Go Back",
-//             onPress: () => router.back(),
-//           },
-//         ]
-//       );
-//     } else {
-//       saveNewOutfit();
-//     }
-//   }, [topImage, bottomImage]);
-
-//   const loadSavedOutfits = async () => {
-//     try {
-//       const savedOutfits = await AsyncStorage.getItem("savedOutfits");
-//       if (savedOutfits) {
-//         setOutfits(JSON.parse(savedOutfits));
-//       }
-//     } catch (error) {
-//       console.error("Error loading outfits:", error);
-//     }
-//   };
-
-//   const saveNewOutfit = async () => {
-//     try {
-//       const newOutfit = { topImage, bottomImage, id: Date.now() };
-//       const updatedOutfits = [...outfits, newOutfit];
-//       await AsyncStorage.setItem(
-//         "savedOutfits",
-//         JSON.stringify(updatedOutfits)
-//       );
-//       setOutfits(updatedOutfits);
-//     } catch (error) {
-//       console.error("Error saving outfit:", error);
-//     }
-//   };
-
-//   const panResponder = useRef(
-//     PanResponder.create({
-//       onStartShouldSetPanResponder: () => true,
-//       onPanResponderMove: (_, { dx }) => {
-//         position.setValue({ x: dx, y: 0 });
-//       },
-//       onPanResponderRelease: (_, { dx }) => {
-//         if (Math.abs(dx) > SCREEN_WIDTH * 0.4) {
-//           const direction = dx > 0 ? -1 : 1;
-//           const newIndex = Math.min(
-//             Math.max(currentIndex + direction, 0),
-//             outfits.length - 1
-//           );
-
-//           Animated.timing(position, {
-//             toValue: { x: direction * SCREEN_WIDTH, y: 0 },
-//             duration: 250,
-//             useNativeDriver: true,
-//           }).start(() => {
-//             setCurrentIndex(newIndex);
-//             position.setValue({ x: 0, y: 0 });
-//           });
-//         } else {
-//           Animated.spring(position, {
-//             toValue: { x: 0, y: 0 },
-//             useNativeDriver: true,
-//           }).start();
-//         }
-//       },
-//     })
-//   ).current;
-
-//   const renderOutfit = (outfit, index) => {
-//     const isCurrentOutfit = index === currentIndex;
-//     const rotate = position.x.interpolate({
-//       inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
-//       outputRange: ["-10deg", "0deg", "10deg"],
-//       extrapolate: "clamp",
-//     });
-
-//     const opacity = position.x.interpolate({
-//       inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
-//       outputRange: [0.5, 1, 0.5],
-//     });
-
-//     const animatedCardStyle = {
-//       transform: [{ rotate }],
-//       opacity,
-//     };
-
-//     return isCurrentOutfit ? (
-//       <Animated.View
-//         key={outfit.id}
-//         style={[styles.outfitContainer, animatedCardStyle]}
-//         {...panResponder.panHandlers}
-//       >
-//         <View style={styles.imageContainer}>
-//           <Text style={styles.imageLabel}>Top</Text>
-//           <Image
-//             source={{ uri: outfit.topImage }}
-//             style={styles.image}
-//             onError={() => Alert.alert("Error loading top image")}
-//           />
-//         </View>
-//         <View style={styles.imageContainer}>
-//           <Text style={styles.imageLabel}>Bottom</Text>
-//           <Image
-//             source={{ uri: outfit.bottomImage }}
-//             style={styles.image}
-//             onError={() => Alert.alert("Error loading bottom image")}
-//           />
-//         </View>
-//       </Animated.View>
-//     ) : null;
-//   };
-
-//   return (
-//     <>
-//       <Stack.Screen
-//         options={{
-//           title: "Your Created Outfits",
-//           headerShown: true,
-//         }}
-//       />
-//       <View style={styles.container}>
-//         {outfits.map((outfit, index) => renderOutfit(outfit, index))}
-
-//         <View style={styles.pagination}>
-//           <Text style={styles.paginationText}>
-//             {outfits.length > 0
-//               ? `${currentIndex + 1}/${outfits.length}`
-//               : "0/0"}
-//           </Text>
-//         </View>
-
-//         <View style={styles.controls}>
-//           <TouchableOpacity
-//             style={styles.button}
-//             onPress={() => router.push("/")}
-//           >
-//             <Text style={styles.buttonText}>Create Another Outfit</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//   },
-//   outfitContainer: {
-//     flex: 1,
-//     padding: 20,
-//   },
-//   imageContainer: {
-//     marginBottom: 30,
-//   },
-//   imageLabel: {
-//     fontSize: 18,
-//     fontWeight: "600",
-//     marginBottom: 10,
-//     color: "#333",
-//   },
-//   image: {
-//     width: "100%",
-//     height: 250,
-//     resizeMode: "cover",
-//     borderRadius: 12,
-//   },
-//   controls: {
-//     padding: 20,
-//     borderTopWidth: 1,
-//     borderTopColor: "#eee",
-//   },
-//   button: {
-//     backgroundColor: "#007AFF",
-//     padding: 15,
-//     borderRadius: 8,
-//     alignItems: "center",
-//   },
-//   buttonText: {
-//     color: "#fff",
-//     fontSize: 16,
-//     fontWeight: "600",
-//   },
-//   pagination: {
-//     position: "absolute",
-//     bottom: 100,
-//     width: "100%",
-//     alignItems: "center",
-//   },
-//   paginationText: {
-//     fontSize: 16,
-//     fontWeight: "600",
-//     color: "#333",
-//   },
-// });
-
-// export default OutfitCreationScreen;
-
-// import React, { useState, useEffect, useRef } from "react";
-// import {
-//   View,
-//   Image,
-//   StyleSheet,
-//   Text,
-//   Alert,
-//   Animated,
-//   Dimensions,
-//   PanResponder,
-//   TouchableOpacity,
-// } from "react-native";
-// import { useRouter } from "expo-router";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// const SCREEN_WIDTH = Dimensions.get("window").width;
-
-// const OutfitScreen = () => {
-//   const router = useRouter();
-//   const [outfits, setOutfits] = useState([]);
-//   const [currentIndex, setCurrentIndex] = useState(0);
-//   const position = useRef(new Animated.ValueXY()).current;
-
-//   useEffect(() => {
-//     const loadSavedOutfits = async () => {
-//       try {
-//         const savedOutfits = await AsyncStorage.getItem("savedOutfits");
-//         if (savedOutfits) {
-//           setOutfits(JSON.parse(savedOutfits));
-//         }
-//       } catch (error) {
-//         console.error("Error loading outfits:", error);
-//       }
-//     };
-
-//     loadSavedOutfits();
-//   }, []);
-
-//   const panResponder = useRef(
-//     PanResponder.create({
-//       onStartShouldSetPanResponder: () => true,
-//       onPanResponderMove: (_, { dx }) => {
-//         position.setValue({ x: dx, y: 0 });
-//       },
-//       onPanResponderRelease: (_, { dx }) => {
-//         const threshold = SCREEN_WIDTH * 0.4;
-//         const direction = dx > threshold ? -1 : dx < -threshold ? 1 : 0;
-
-//         if (direction !== 0) {
-//           const newIndex = Math.min(
-//             Math.max(currentIndex + direction, 0),
-//             outfits.length - 1
-//           );
-//           Animated.timing(position, {
-//             toValue: { x: direction * SCREEN_WIDTH, y: 0 },
-//             duration: 250,
-//             useNativeDriver: true,
-//           }).start(() => {
-//             setCurrentIndex(newIndex);
-//             position.setValue({ x: 0, y: 0 });
-//           });
-//         } else {
-//           Animated.spring(position, {
-//             toValue: { x: 0, y: 0 },
-//             useNativeDriver: true,
-//           }).start();
-//         }
-//       },
-//     })
-//   ).current;
-
-//   const deleteOutfit = async (index) => {
-//     const updatedOutfits = outfits.filter((_, i) => i !== index);
-//     await AsyncStorage.setItem("savedOutfits", JSON.stringify(updatedOutfits));
-//     setOutfits(updatedOutfits);
-//     Alert.alert("Outfit Deleted", "Your outfit has been deleted.");
-//   };
-
-//   const renderOutfit = (outfit, index) => {
-//     const isCurrentOutfit = index === currentIndex;
-//     const rotate = position.x.interpolate({
-//       inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
-//       outputRange: ["-10deg", "0deg", "10deg"],
-//       extrapolate: "clamp",
-//     });
-
-//     const animatedCardStyle = {
-//       transform: [{ rotate }],
-//       opacity: isCurrentOutfit ? 1 : 0.5,
-//     };
-
-//     return (
-//       <Animated.View
-//         key={outfit.id}
-//         style={[styles.outfitContainer, animatedCardStyle]}
-//         {...panResponder.panHandlers}
-//       >
-//         <View style={styles.imageContainer}>
-//           <Text style={styles.imageLabel}>Top</Text>
-//           <Image source={{ uri: outfit.topImage }} style={styles.image} />
-//         </View>
-//         <View style={styles.imageContainer}>
-//           <Text style={styles.imageLabel}>Bottom</Text>
-//           <Image source={{ uri: outfit.bottomImage }} style={styles.image} />
-//         </View>
-//         <TouchableOpacity
-//           style={styles.deleteButton}
-//           onPress={() => deleteOutfit(index)}
-//         >
-//           <Text style={styles.deleteButtonText}>Delete Outfit</Text>
-//         </TouchableOpacity>
-//       </Animated.View>
-//     );
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       {outfits.length > 0 ? (
-//         renderOutfit(outfits[currentIndex], currentIndex)
-//       ) : (
-//         <Text style={styles.noOutfitsText}>No outfits saved.</Text>
-//       )}
-//       <View style={styles.navigationButtons}>
-//         <TouchableOpacity
-//           disabled={currentIndex === 0}
-//           onPress={() => setCurrentIndex(currentIndex - 1)}
-//           style={[
-//             styles.navButton,
-//             currentIndex === 0 && styles.disabledButton,
-//           ]}
-//         >
-//           <Text style={styles.navButtonText}>Previous</Text>
-//         </TouchableOpacity>
-//         <TouchableOpacity
-//           disabled={currentIndex === outfits.length - 1}
-//           onPress={() => setCurrentIndex(currentIndex + 1)}
-//           style={[
-//             styles.navButton,
-//             currentIndex === outfits.length - 1 && styles.disabledButton,
-//           ]}
-//         >
-//           <Text style={styles.navButtonText}>Next</Text>
-//         </TouchableOpacity>
-//       </View>
-//       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-//         <Text style={styles.backButtonText}>Go Back</Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: "center",
-//     justifyContent: "center",
-//     backgroundColor: "#fff",
-//   },
-//   outfitContainer: {
-//     width: SCREEN_WIDTH,
-//     alignItems: "center",
-//     marginBottom: 20,
-//   },
-//   imageContainer: {
-//     marginBottom: 10,
-//   },
-//   imageLabel: {
-//     fontSize: 16,
-//     fontWeight: "bold",
-//     marginBottom: 5,
-//   },
-//   image: {
-//     width: 200,
-//     height: 200,
-//     borderRadius: 10,
-//   },
-//   noOutfitsText: {
-//     fontSize: 18,
-//     color: "#666",
-//     textAlign: "center",
-//   },
-//   deleteButton: {
-//     backgroundColor: "#ff3b30",
-//     padding: 10,
-//     borderRadius: 8,
-//     marginTop: 10,
-//   },
-//   deleteButtonText: {
-//     color: "#fff",
-//     fontWeight: "bold",
-//   },
-//   navigationButtons: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     width: "80%",
-//     marginTop: 20,
-//   },
-//   navButton: {
-//     padding: 10,
-//     borderRadius: 8,
-//     backgroundColor: "#007AFF",
-//     flex: 1,
-//     marginHorizontal: 5,
-//     alignItems: "center",
-//   },
-//   navButtonText: {
-//     color: "#fff",
-//     fontWeight: "bold",
-//   },
-//   disabledButton: {
-//     backgroundColor: "#ccc",
-//   },
-//   backButton: {
-//     marginTop: 20,
-//     padding: 10,
-//     borderRadius: 8,
-//     backgroundColor: "#007AFF",
-//     alignItems: "center",
-//   },
-//   backButtonText: {
-//     color: "#fff",
-//     fontWeight: "bold",
-//   },
-// });
-
-// export default OutfitScreen;
-
-// import React, { useState, useRef, useEffect } from "react";
-// import {
-//   View,
-//   Image,
-//   StyleSheet,
-//   TouchableOpacity,
-//   Text,
-//   Alert,
-//   Animated,
-//   Dimensions,
-//   PanResponder,
-// } from "react-native";
-// import { useRouter, useLocalSearchParams, Stack } from "expo-router";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// const SCREEN_WIDTH = Dimensions.get("window").width;
-
-// const OutfitCreationScreen = () => {
-//   const router = useRouter();
-//   const params = useLocalSearchParams();
-//   const { topImage, bottomImage } = params;
-
-//   const [outfits, setOutfits] = useState([]);
-//   const [currentIndex, setCurrentIndex] = useState(0);
-//   const position = useRef(new Animated.ValueXY()).current;
-
-//   useEffect(() => {
-//     const checkImages = () => {
-//       if (!topImage || !bottomImage) {
-//         Alert.alert(
-//           "Missing Images",
-//           "Please select both top and bottom images",
-//           [{ text: "Go Back", onPress: () => router.back() }]
-//         );
-//       } else {
-//         saveNewOutfit();
-//       }
-//     };
-
-//     const loadSavedOutfits = async () => {
-//       try {
-//         const savedOutfits = await AsyncStorage.getItem("savedOutfits");
-//         if (savedOutfits) {
-//           setOutfits(JSON.parse(savedOutfits));
-//         }
-//       } catch (error) {
-//         console.error("Error loading outfits:", error);
-//       }
-//     };
-
-//     checkImages();
-//     loadSavedOutfits();
-//   }, [topImage, bottomImage]);
-
-//   const saveNewOutfit = async () => {
-//     try {
-//       const newOutfit = { topImage, bottomImage, id: Date.now() };
-//       const updatedOutfits = [...outfits, newOutfit];
-//       await AsyncStorage.setItem(
-//         "savedOutfits",
-//         JSON.stringify(updatedOutfits)
-//       );
-//       setOutfits(updatedOutfits);
-//     } catch (error) {
-//       console.error("Error saving outfit:", error);
-//     }
-//   };
-
-//   const panResponder = useRef(
-//     PanResponder.create({
-//       onStartShouldSetPanResponder: () => true,
-//       onPanResponderMove: (_, { dx }) => {
-//         position.setValue({ x: dx, y: 0 });
-//       },
-//       onPanResponderRelease: (_, { dx }) => {
-//         const threshold = SCREEN_WIDTH * 0.4;
-//         const direction = dx > threshold ? -1 : dx < -threshold ? 1 : 0;
-
-//         if (direction !== 0) {
-//           const newIndex = Math.min(
-//             Math.max(currentIndex + direction, 0),
-//             outfits.length - 1
-//           );
-//           Animated.timing(position, {
-//             toValue: { x: direction * SCREEN_WIDTH, y: 0 },
-//             duration: 250,
-//             useNativeDriver: true,
-//           }).start(() => {
-//             setCurrentIndex(newIndex);
-//             position.setValue({ x: 0, y: 0 });
-//           });
-//         } else {
-//           Animated.spring(position, {
-//             toValue: { x: 0, y: 0 },
-//             useNativeDriver: true,
-//           }).start();
-//         }
-//       },
-//     })
-//   ).current;
-
-//   const renderOutfit = (outfit, index) => {
-//     const isCurrentOutfit = index === currentIndex;
-//     const rotate = position.x.interpolate({
-//       inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
-//       outputRange: ["-10deg", "0deg", "10deg"],
-//       extrapolate: "clamp",
-//     });
-
-//     const animatedCardStyle = {
-//       transform: [{ rotate }],
-//       opacity: isCurrentOutfit ? 1 : 0.5,
-//     };
-
-//     return isCurrentOutfit ? (
-//       <Animated.View
-//         key={outfit.id}
-//         style={[styles.outfitContainer, animatedCardStyle]}
-//         {...panResponder.panHandlers}
-//       >
-//         <View style={styles.imageContainer}>
-//           <Text style={styles.imageLabel}>Top</Text>
-//           <Image
-//             source={{ uri: outfit.top }}
-//             style={styles.image}
-//             onError={() => Alert.alert("Error loading top image")}
-//           />
-//         </View>
-//         <View style={styles.imageContainer}>
-//           <Text style={styles.imageLabel}>Bottom</Text>
-//           <Image
-//             source={{ uri: outfit.bottom }}
-//             style={styles.image}
-//             onError={() => Alert.alert("Error loading bottom image")}
-//           />
-//         </View>
-//       </Animated.View>
-//     ) : null;
-//   };
-
-//   return (
-//     <>
-//       <Stack.Screen
-//         options={{
-//           title: "Your Created Outfits",
-//           headerShown: true,
-//         }}
-//       />
-//       <View style={styles.container}>
-//         {outfits.length > 0 ? (
-//           outfits.map((outfit, index) => renderOutfit(outfit, index))
-//         ) : (
-//           <Text style={styles.noOutfitsText}>No outfits created yet.</Text>
-//         )}
-//         <View style={styles.pagination}>
-//           <Text style={styles.paginationText}>
-//             {outfits.length > 0
-//               ? `${currentIndex + 1}/${outfits.length}`
-//               : "0/0"}
-//           </Text>
-//         </View>
-//         <View style={styles.controls}>
-//           <TouchableOpacity
-//             style={styles.button}
-//             onPress={() => router.push("/")}
-//           >
-//             <Text style={styles.buttonText}>Create Another Outfit</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: "#fff",
-//     justifyContent: "center",
-//     alignItems: "center",
-//   },
-//   outfitContainer: {
-//     flex: 1,
-//     padding: 20,
-//   },
-//   imageContainer: {
-//     marginBottom: 30,
-//   },
-//   imageLabel: {
-//     fontSize: 18,
-//     fontWeight: "600",
-//     marginBottom: 10,
-//     color: "#333",
-//   },
-//   image: {
-//     width: "100%",
-//     height: 250,
-//     resizeMode: "cover",
-//     borderRadius: 12,
-//   },
-//   noOutfitsText: {
-//     fontSize: 16,
-//     color: "#333",
-//   },
-//   controls: {
-//     padding: 20,
-//     borderTopWidth: 1,
-//     borderTopColor: "#eee",
-//   },
-//   button: {
-//     backgroundColor: "#007AFF",
-//     padding: 15,
-//     borderRadius: 8,
-//     alignItems: "center",
-//   },
-//   buttonText: {
-//     color: "#fff",
-//     fontSize: 16,
-//     fontWeight: "600",
-//   },
-//   pagination: {
-//     position: "absolute",
-//     bottom: 100,
-//     width: "100%",
-//     alignItems: "center",
-//   },
-//   paginationText: {
-//     fontSize: 16,
-//     fontWeight: "600",
-//     color: "#333",
-//   },
-// });
-
-// export default OutfitCreationScreen;
 import React, { useState, useRef, useEffect } from "react";
 import {
   View,
@@ -702,99 +8,216 @@ import {
   Alert,
   Animated,
   Dimensions,
-  PanResponder,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+} from "firebase/firestore";
+import { db } from "../firebase";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const OutfitCreationScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { topImage, bottomImage } = params;
+  const { selectedTops, selectedBottoms } = params;
 
   const [outfits, setOutfits] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const position = useRef(new Animated.ValueXY()).current;
+  const [isLoading, setIsLoading] = useState(true);
+  const [imageLoadErrors, setImageLoadErrors] = useState({});
 
-  useEffect(() => {
-    const checkImages = () => {
-      if (!topImage || !bottomImage) {
-        Alert.alert(
-          "Missing Images",
-          "Please select both top and bottom images",
-          [{ text: "Go Back", onPress: () => router.back() }]
-        );
-      } else {
-        saveNewOutfit();
-      }
-    };
-
-    const loadSavedOutfits = async () => {
-      try {
-        const savedOutfits = await AsyncStorage.getItem("savedOutfits");
-        if (savedOutfits) {
-          setOutfits(JSON.parse(savedOutfits));
-        }
-      } catch (error) {
-        console.error("Error loading outfits:", error);
-      }
-    };
-
-    checkImages();
-    loadSavedOutfits();
-  }, [topImage, bottomImage]);
-
-  const saveNewOutfit = async () => {
+  // Function to validate image URL
+  const isValidImageUrl = (url) => {
+    if (!url) return false;
     try {
-      const newOutfit = { topImage, bottomImage, id: Date.now() };
-      const updatedOutfits = [...outfits, newOutfit];
-      await AsyncStorage.setItem(
-        "savedOutfits",
-        JSON.stringify(updatedOutfits)
+      const parsedUrl = new URL(url);
+      return (
+        parsedUrl.protocol === "https:" &&
+        parsedUrl.hostname === "firebasestorage.googleapis.com"
       );
-      setOutfits(updatedOutfits);
-    } catch (error) {
-      console.error("Error saving outfit:", error);
+    } catch {
+      return false;
     }
   };
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, { dx }) => {
-        position.setValue({ x: dx, y: 0 });
-      },
-      onPanResponderRelease: (_, { dx }) => {
-        const threshold = SCREEN_WIDTH * 0.4;
-        const direction = dx > threshold ? -1 : dx < -threshold ? 1 : 0;
+  const saveNewOutfit = async (top, bottom) => {
+    try {
+      const outfitData = {
+        topImage: {
+          id: top.id,
+          imageUrl: top.imageUrl,
+        },
+        bottomImage: {
+          id: bottom.id,
+          imageUrl: bottom.imageUrl,
+        },
+        createdAt: new Date().toISOString(),
+      };
 
-        if (direction !== 0) {
-          const newIndex = Math.min(
-            Math.max(currentIndex + direction, 0),
-            outfits.length - 1
-          );
-          Animated.timing(position, {
-            toValue: { x: direction * SCREEN_WIDTH, y: 0 },
-            duration: 250,
-            useNativeDriver: true,
-          }).start(() => {
-            setCurrentIndex(newIndex);
-            position.setValue({ x: 0, y: 0 });
-          });
-        } else {
-          Animated.spring(position, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: true,
-          }).start();
+      const docRef = await addDoc(collection(db, "outfits"), outfitData);
+      console.log("New outfit saved with ID:", docRef.id);
+      return docRef.id;
+    } catch (error) {
+      console.error("Error saving new outfit:", error);
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    const loadSavedOutfits = async () => {
+      setIsLoading(true);
+      try {
+        const outfitsRef = collection(db, "outfits");
+        const q = query(outfitsRef, orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+
+        const loadedOutfits = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+
+          // Validate URLs before adding to loaded outfits
+          if (
+            isValidImageUrl(data.topImage?.imageUrl) &&
+            isValidImageUrl(data.bottomImage?.imageUrl)
+          ) {
+            loadedOutfits.push({
+              id: doc.id,
+              topImage: {
+                id: data.topImage.id,
+                imageUrl: data.topImage.imageUrl,
+              },
+              bottomImage: {
+                id: data.bottomImage.id,
+                imageUrl: data.bottomImage.imageUrl,
+              },
+              createdAt: data.createdAt,
+            });
+          } else {
+            console.warn(`Outfit ${doc.id} has invalid image URLs:`, {
+              top: data.topImage?.imageUrl,
+              bottom: data.bottomImage?.imageUrl,
+            });
+          }
+        });
+
+        console.log(`Loaded ${loadedOutfits.length} valid outfits`);
+        setOutfits(loadedOutfits);
+      } catch (error) {
+        console.error("Error loading outfits:", error);
+        Alert.alert(
+          "Error",
+          "Failed to load outfits. Please check your connection and try again."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const saveAndLoadOutfits = async () => {
+      try {
+        if (selectedTops && selectedBottoms) {
+          const tops =
+            typeof selectedTops === "string"
+              ? JSON.parse(selectedTops)
+              : selectedTops;
+          const bottoms =
+            typeof selectedBottoms === "string"
+              ? JSON.parse(selectedBottoms)
+              : selectedBottoms;
+
+          if (
+            isValidImageUrl(tops.imageUrl) &&
+            isValidImageUrl(bottoms.imageUrl)
+          ) {
+            await saveNewOutfit(tops, bottoms);
+          } else {
+            console.error("Invalid image URLs in selected items");
+          }
         }
-      },
-    })
-  ).current;
+        await loadSavedOutfits();
+      } catch (error) {
+        console.error("Error in initialization:", error);
+        Alert.alert(
+          "Error",
+          "Failed to process outfit data. Please check your connection and try again."
+        );
+        setIsLoading(false);
+      }
+    };
+
+    saveAndLoadOutfits();
+  }, [selectedTops, selectedBottoms]);
+
+  const handleImageError = (outfitId, imageType, error) => {
+    console.error(
+      `Error loading ${imageType} image for outfit ${outfitId}:`,
+      error
+    );
+    setImageLoadErrors((prev) => ({
+      ...prev,
+      [`${outfitId}-${imageType}`]: true,
+    }));
+  };
+
+  const renderImage = (outfit, imageType) => {
+    const imageData =
+      imageType === "top" ? outfit.topImage : outfit.bottomImage;
+    const errorKey = `${outfit.id}-${imageType}`;
+    const hasError = imageLoadErrors[errorKey];
+
+    if (hasError) {
+      return (
+        <View style={[styles.image, styles.errorContainer]}>
+          <Text style={styles.errorText}>Failed to load image</Text>
+        </View>
+      );
+    }
+
+    return (
+      <Image
+        source={{ uri: imageData.imageUrl }}
+        style={styles.image}
+        onError={(error) => handleImageError(outfit.id, imageType, error)}
+        loadingIndicatorSource={require("../assets/images/icon.png")}
+        defaultSource={require("../assets/images/icon.png")}
+      />
+    );
+  };
+
+  const handleNext = () => {
+    if (currentIndex < outfits.length - 1) {
+      Animated.spring(position, {
+        toValue: { x: -SCREEN_WIDTH, y: 0 },
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentIndex(currentIndex + 1);
+        position.setValue({ x: 0, y: 0 });
+      });
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      Animated.spring(position, {
+        toValue: { x: SCREEN_WIDTH, y: 0 },
+        useNativeDriver: true,
+      }).start(() => {
+        setCurrentIndex(currentIndex - 1);
+        position.setValue({ x: 0, y: 0 });
+      });
+    }
+  };
 
   const renderOutfit = (outfit, index) => {
     const isCurrentOutfit = index === currentIndex;
+
     const rotate = position.x.interpolate({
       inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
       outputRange: ["-10deg", "0deg", "10deg"],
@@ -810,23 +233,14 @@ const OutfitCreationScreen = () => {
       <Animated.View
         key={outfit.id}
         style={[styles.outfitContainer, animatedCardStyle]}
-        {...panResponder.panHandlers}
       >
         <View style={styles.imageContainer}>
           <Text style={styles.imageLabel}>Top</Text>
-          <Image
-            source={{ uri: outfit.top }}
-            style={styles.image}
-            onError={() => Alert.alert("Error loading top image")}
-          />
+          {renderImage(outfit, "top")}
         </View>
         <View style={styles.imageContainer}>
           <Text style={styles.imageLabel}>Bottom</Text>
-          <Image
-            source={{ uri: outfit.bottom }}
-            style={styles.image}
-            onError={() => Alert.alert("Error loading bottom image")}
-          />
+          {renderImage(outfit, "bottom")}
         </View>
       </Animated.View>
     ) : null;
@@ -841,26 +255,40 @@ const OutfitCreationScreen = () => {
         }}
       />
       <View style={styles.container}>
-        {outfits.length > 0 ? (
-          outfits.map((outfit, index) => renderOutfit(outfit, index))
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#007AFF" />
+            <Text style={styles.loadingText}>Loading outfits...</Text>
+          </View>
+        ) : outfits.length > 0 ? (
+          <>
+            {outfits.map((outfit, index) => renderOutfit(outfit, index))}
+            <View style={styles.navigationContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.navButton,
+                  currentIndex === 0 && styles.disabledButton,
+                ]}
+                onPress={handlePrevious}
+                disabled={currentIndex === 0}
+              >
+                <Text style={styles.navButtonText}>Previous</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.navButton,
+                  currentIndex === outfits.length - 1 && styles.disabledButton,
+                ]}
+                onPress={handleNext}
+                disabled={currentIndex === outfits.length - 1}
+              >
+                <Text style={styles.navButtonText}>Next</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         ) : (
           <Text style={styles.noOutfitsText}>No outfits created yet.</Text>
         )}
-        <View style={styles.pagination}>
-          <Text style={styles.paginationText}>
-            {outfits.length > 0
-              ? `${currentIndex + 1}/${outfits.length}`
-              : "0/0"}
-          </Text>
-        </View>
-        <View style={styles.controls}>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => router.push("/")}
-          >
-            <Text style={styles.buttonText}>Create Another Outfit</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </>
   );
@@ -870,58 +298,88 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
   },
   outfitContainer: {
-    flex: 1,
+    width: SCREEN_WIDTH - 40,
     padding: 20,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   imageContainer: {
-    marginBottom: 30,
+    marginBottom: 20,
   },
   imageLabel: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 10,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
     color: "#333",
   },
   image: {
     width: "100%",
-    height: 250,
-    resizeMode: "cover",
+    height: 200,
+    borderRadius: 12,
+    backgroundColor: "#f8f9fa",
+  },
+  errorContainer: {
+    backgroundColor: "#f8f9fa",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#dee2e6",
     borderRadius: 12,
   },
-  noOutfitsText: {
+  errorText: {
+    color: "#dc3545",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
     fontSize: 16,
-    color: "#333",
+    color: "#666",
   },
-  controls: {
+  navigationContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: SCREEN_WIDTH - 40,
     padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
+    position: "absolute",
+    bottom: 20,
   },
-  button: {
+  navButton: {
     backgroundColor: "#007AFF",
     padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
+    borderRadius: 10,
+    width: "45%",
   },
-  buttonText: {
+  navButtonText: {
     color: "#fff",
+    textAlign: "center",
     fontSize: 16,
     fontWeight: "600",
   },
-  pagination: {
-    position: "absolute",
-    bottom: 100,
-    width: "100%",
-    alignItems: "center",
+  disabledButton: {
+    backgroundColor: "#ccc",
   },
-  paginationText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+  noOutfitsText: {
+    fontSize: 18,
+    color: "#666",
+    textAlign: "center",
   },
 });
 
