@@ -203,6 +203,7 @@ const OutfitCreationScreen = () => {
     }
   };
 
+
   const handlePrevious = () => {
     if (currentIndex > 0) {
       Animated.spring(position, {
@@ -267,10 +268,10 @@ const OutfitCreationScreen = () => {
               <TouchableOpacity
                 style={[
                   styles.navButton,
-                  currentIndex === 0 && styles.disabledButton,
+                  //currentIndex === 0 && styles.disabledButton,
                 ]}
                 onPress={handlePrevious}
-                disabled={currentIndex === 0}
+                //disabled={currentIndex === 0}
               >
                 <Text style={styles.navButtonText}>Previous</Text>
               </TouchableOpacity>
