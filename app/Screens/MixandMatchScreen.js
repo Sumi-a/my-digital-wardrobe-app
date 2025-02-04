@@ -10,13 +10,15 @@ import {
   Dimensions,
 } from "react-native";
 import { fetchWardrobe, saveOutfit } from "../outfitfirestore";
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 const imageWidth = width * 0.65; // Reduce image width slightly for better layout
 const imageHeight = imageWidth * 1.1; // Maintain aspect ratio
 const buttonSize = width * 0.1; // Adjust button size to avoid overlap
-
-const MixAndMatchScreen = ({ navigation }) => {
+const MixAndMatchScreen = () => {
+  const navigation = useNavigation();
+  //const MixAndMatchScreen = ({ navigation }) => {
   const [wardrobe, setWardrobe] = useState({ tops: [], bottoms: [] });
   const [selectedTopIndex, setSelectedTopIndex] = useState(0);
   const [selectedBottomIndex, setSelectedBottomIndex] = useState(0);
