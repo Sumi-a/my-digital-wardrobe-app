@@ -5,10 +5,11 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import HomeScreen from "./Screens/HomeScreen";
 import Upload from "./Screens/upload";
-import ImagesScreen from "./Screens/ImagesScreen";
 import GalleryScreen from "./Screens//GalleryScreen";
 import LoginScreen from "./Screens/LoginScreen";
 import SignUpScreen from "./Screens/SignUpScreen";
+import MixAndMatchScreen from "./Screens/MixandMatchScreen";
+import OutfitScreen from "./Screens/OutfitScreen";
 import Toast from "react-native-toast-message";
 
 const App = () => {
@@ -40,9 +41,9 @@ const App = () => {
           <>
             <Stack.Screen name="HomeScreen" component={HomeScreen} />
             <Stack.Screen name="upload" component={Upload} />
-            <Stack.Screen name="ImagesScreen" component={ImagesScreen} />
             <Stack.Screen name="GalleryScreen" component={GalleryScreen} />
-          
+            <Stack.Screen name="OutfitScreen" component={OutfitScreen} />
+            <Stack.Screen name="MixAndMatchScreen" component={MixAndMatchScreen}/>
           </>
         ) : (
           <>
