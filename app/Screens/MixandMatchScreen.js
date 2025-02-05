@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { fetchWardrobe, saveOutfit } from "../outfitfirestore";
 import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 const imageWidth = width * 0.65; // Reduce image width slightly for better layout
@@ -23,6 +24,7 @@ const MixAndMatchScreen = () => {
   const [selectedTopIndex, setSelectedTopIndex] = useState(0);
   const [selectedBottomIndex, setSelectedBottomIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const loadWardrobe = async () => {
@@ -37,6 +39,37 @@ const MixAndMatchScreen = () => {
     loadWardrobe();
   }, []);
 
+  // const handleSaveOutfit = async () => {
+  //   if (isSaving) return;
+  //   setIsSaving(true);
+
+  //   const selectedTop = wardrobe.tops[selectedTopIndex];
+  //   const selectedBottom = wardrobe.bottoms[selectedBottomIndex];
+
+  //   if (!selectedTop || !selectedBottom) {
+  //     Alert.alert("Error", "Please select a top and a bottom.");
+  //     setIsSaving(false);
+  //     return;
+  //   }
+
+  //   const newOutfit = {
+  //     name: "Custom Outfit",
+  //     category: "Mixed",
+  //     top: selectedTop.url,
+  //     bottom: selectedBottom.url,
+  //   };
+
+  //   try {
+  //     await saveOutfit(newOutfit);
+  //     Alert.alert("Success", "Your outfit has been saved!", [
+  //       { text: "OK", onPress: () => navigation.navigate("OutfitScreen") },
+  //     ]);
+  //   } catch (error) {
+  //     console.error("Error saving outfit:", error);
+  //     Alert.alert("Error", "Could not save outfit");
+  //   }
+  //   setIsSaving(false);
+  // };
   const handleSaveOutfit = async () => {
     if (isSaving) return;
     setIsSaving(true);
@@ -60,7 +93,7 @@ const MixAndMatchScreen = () => {
     try {
       await saveOutfit(newOutfit);
       Alert.alert("Success", "Your outfit has been saved!", [
-        { text: "OK", onPress: () => navigation.navigate("OutfitScreen") },
+        { text: "OK", onPress: () => router.push("/Screens/OutfitScreen") }, // Use router.push
       ]);
     } catch (error) {
       console.error("Error saving outfit:", error);

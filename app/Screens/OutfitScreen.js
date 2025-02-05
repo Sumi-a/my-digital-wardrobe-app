@@ -11,11 +11,13 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getOutfits } from "../outfitfirestore";
+import { useRouter } from "expo-router";
 
 const OutfitScreen = () => {
   const navigation = useNavigation();
   const [outfits, setOutfits] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   // Fetch outfits from Firestore
   const fetchOutfits = async () => {
@@ -35,8 +37,11 @@ const OutfitScreen = () => {
   }, []);
 
   // Navigate to Mix and Match screen
+  // const handleMixAndMatchPress = () => {
+  //   navigation.navigate("MixAndMatchScreen");
+  // };
   const handleMixAndMatchPress = () => {
-    navigation.navigate("MixAndMatchScreen");
+    router.push("/Screens/MixAndMatchScreen"); 
   };
 
   const renderOutfitCard = ({ item }) => (
