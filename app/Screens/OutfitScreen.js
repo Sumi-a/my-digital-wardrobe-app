@@ -87,38 +87,33 @@ const OutfitScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.mixAndMatchButton}
-        onPress={handleMixAndMatchPress}
-      >
-        <Text style={styles.mixAndMatchButtonText}>Mix & Match</Text>
-      </TouchableOpacity>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FF1493" />
-          <Text style={styles.loadingText}>Loading outfits...</Text>
-        </View>
-      ) : outfits.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No outfits found. Create one!</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={outfits}
-          renderItem={renderOutfitCard}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
+<View style={styles.container}>
+  {loading ? (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#FF1493" />
+      <Text style={styles.loadingText}>Loading outfits...</Text>
     </View>
+  ) : outfits.length === 0 ? (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyText}>No outfits found. Create one!</Text>
+    </View>
+  ) : (
+    <FlatList
+      data={outfits}
+      renderItem={renderOutfitCard}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.listContainer}
+      showsVerticalScrollIndicator={false}
+    />
+  )}
+</View>
   );
-};
+ };
+
 
 const { width } = Dimensions.get("window");
-const cardWidth = width * 0.8; // Make the card take up 80% of the screen width
+const cardWidth = width * 0.5; // Make the card take up 80% of the screen width
 
 const styles = StyleSheet.create({
   container: {
