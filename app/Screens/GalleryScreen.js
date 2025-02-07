@@ -1,3 +1,366 @@
+// import React, { useState, useEffect } from "react";
+// import {
+//   View,
+//   FlatList,
+//   Image,
+//   TouchableOpacity,
+//   Text,
+//   ActivityIndicator,
+//   Alert,
+//   StyleSheet,
+// } from "react-native";
+// import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+// import { deleteObject, ref } from "firebase/storage";
+// import { useIsFocused, useNavigation } from "@react-navigation/native";
+// import { db, storage } from "../firebase";
+// import { Ionicons } from "@expo/vector-icons";
+// import { useRouter } from "expo-router";
+// import { LinearGradient } from "expo-linear-gradient";
+// import { handleCreateOutfit } from "../outfitfirestore";
+// // Import the function
+
+// const GalleryScreen = () => {
+//   const router = useRouter();
+//   const [images, setImages] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [selectedTop, setSelectedTop] = useState(null);
+//   const [selectedBottom, setSelectedBottom] = useState(null);
+//   const isFocused = useIsFocused();
+//   const navigation = useNavigation();
+
+//   React.useLayoutEffect(() => {
+//     navigation.setOptions({
+//       headerShown: false,
+//     });
+//   }, [navigation]);
+
+//   const fetchImages = async () => {
+//     setLoading(true);
+//     try {
+//       const querySnapshot = await getDocs(collection(db, "wardrobeItems"));
+//       const itemData = querySnapshot.docs.map((doc) => ({
+//         ...doc.data(),
+//         id: doc.id,
+//         url: doc.data().imageUrl,
+//         category: doc.data().category?.toLowerCase().includes("top")
+//           ? "Tops"
+//           : "Bottoms",
+//       }));
+//       setImages(itemData);
+//     } catch (error) {
+//       console.error("Error fetching images:", error);
+//       Alert.alert("Error", "Failed to load images. Please try again.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (isFocused) {
+//       fetchImages();
+//     }
+//   }, [isFocused]);
+
+//   const handleImageSelect = (item) => {
+//     if (item.category === "Tops") {
+//       setSelectedTop(selectedTop?.id === item.id ? null : item);
+//     } else if (item.category === "Bottoms") {
+//       setSelectedBottom(selectedBottom?.id === item.id ? null : item);
+//     }
+//   };
+
+//   const handleCreateOutfitPress = async () => {
+//     if (selectedTop && selectedBottom) {
+//       const newOutfit = {
+//         top: { id: selectedTop.id, url: selectedTop.url },
+//         bottom: { id: selectedBottom.id, url: selectedBottom.url },
+//         createdAt: new Date().toISOString(),
+//       };
+//       try {
+//         await handleCreateOutfit(newOutfit); // Use the imported function
+//         Alert.alert("Success", "Outfit saved successfully!");
+//         router.push("Screens/MixandMatchScreen");
+//       } catch (error) {
+//         console.error("Error creating outfit:", error);
+//         Alert.alert("Error", "Failed to create outfit. Please try again.");
+//       }
+//     } else {
+//       Alert.alert(
+//         "Selection Required",
+//         "Please select both a top and bottom item"
+//       );
+//     }
+//   };
+
+//   const handleDelete = async (item) => {
+//     Alert.alert("Delete Item", "Are you sure you want to delete this?", [
+//       { text: "Cancel", style: "cancel" },
+//       {
+//         text: "Delete",
+//         style: "destructive",
+//         onPress: async () => {
+//           try {
+//             await deleteDoc(doc(db, "wardrobeItems", item.id));
+//             if (item.storagePath) {
+//               const storageRef = ref(storage, item.storagePath);
+//               await deleteObject(storageRef);
+//             }
+//             if (selectedTop?.id === item.id) setSelectedTop(null);
+//             if (selectedBottom?.id === item.id) setSelectedBottom(null);
+//             setImages((prevImages) =>
+//               prevImages.filter((img) => img.id !== item.id)
+//             );
+//             Alert.alert("Item deleted!");
+//           } catch (error) {
+//             console.error("Error deleting item:", error);
+//             Alert.alert("Failed to delete. Try again!");
+//           }
+//         },
+//       },
+//     ]);
+//   };
+
+//   const renderCategory = (category, items = []) => {
+//     return (
+//       <View style={styles.categoryContainer}>
+//         <LinearGradient
+//           colors={["#2196F3", "#1565C0"]}
+//           start={{ x: 0, y: 0 }}
+//           end={{ x: 1, y: 0 }}
+//           style={styles.categoryHeader}
+//         >
+//           <Text style={styles.categoryHeaderText}>
+//             {category} ({items.length})
+//             {category === "Tops" && selectedTop && " - Selected!"}
+//             {category === "Bottoms" && selectedBottom && " - Selected!"}
+//           </Text>
+//         </LinearGradient>
+
+//         {items.length > 0 ? (
+//           <FlatList
+//             data={items}
+//             keyExtractor={(item) => item.id}
+//             horizontal
+//             renderItem={({ item }) => (
+//               <View style={styles.imageWrapper}>
+//                 <TouchableOpacity
+//                   onPress={() => handleImageSelect(item)}
+//                   style={styles.imageContainer}
+//                 >
+//                   <Image
+//                     source={{ uri: item.url }}
+//                     style={[
+//                       styles.image,
+//                       ((selectedTop?.id === item.id && category === "Tops") ||
+//                         (selectedBottom?.id === item.id &&
+//                           category === "Bottoms")) &&
+//                         styles.selectedImage,
+//                     ]}
+//                   />
+//                 </TouchableOpacity>
+//                 <TouchableOpacity
+//                   onPress={() => handleDelete(item)}
+//                   style={styles.deleteButton}
+//                 >
+//                   <Ionicons name="trash-outline" size={20} color="#FF1493" />
+//                 </TouchableOpacity>
+//               </View>
+//             )}
+//             showsHorizontalScrollIndicator={false}
+//           />
+//         ) : (
+//           <Text style={styles.noItemsText}>No items!</Text>
+//         )}
+//       </View>
+//     );
+//   };
+
+//   if (loading) {
+//     return (
+//       <View style={styles.loadingContainer}>
+//         <ActivityIndicator size="large" color="#FF1493" />
+//         <Text style={styles.loadingText}>Loading your wardrobe...</Text>
+//       </View>
+//     );
+//   }
+
+//   const groupedImages = images.reduce((acc, item) => {
+//     if (!acc[item.category]) {
+//       acc[item.category] = [];
+//     }
+//     acc[item.category].push(item);
+//     return acc;
+//   }, {});
+
+//   return (
+//     <View style={styles.container}>
+//       <LinearGradient colors={["#2196F3", "#1565C0"]} style={styles.header}>
+//         <Text style={styles.headerTitle}>YOUR WARDROBE</Text>
+//       </LinearGradient>
+
+//       <View style={styles.mainContent}>
+//         {renderCategory("Tops", groupedImages["Tops"])}
+//         {renderCategory("Bottoms", groupedImages["Bottoms"])}
+//       </View>
+
+//       <View style={styles.outfitControls}>
+//         <TouchableOpacity
+//           style={[
+//             styles.createOutfitButton,
+//             (!selectedTop || !selectedBottom) &&
+//               styles.createOutfitButtonDisabled,
+//           ]}
+//           onPress={handleCreateOutfitPress}
+//           disabled={!selectedTop || !selectedBottom}
+//         >
+//           <LinearGradient
+//             colors={["#2196F3", "#1565C0"]}
+//             style={styles.gradientButton}
+//           >
+//             <Text style={styles.createOutfitButtonText}>Preview outfits</Text>
+//           </LinearGradient>
+//         </TouchableOpacity>
+
+//         <TouchableOpacity
+//           style={styles.clearSelectionsButton}
+//           onPress={() => {
+//             setSelectedTop(null);
+//             setSelectedBottom(null);
+//           }}
+//         >
+//           <Text style={styles.clearSelectionsButtonText}>Clear Selection</Text>
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "#FFF0F5",
+//   },
+//   header: {
+//     paddingTop: 50,
+//     paddingBottom: 15,
+//     alignItems: "center",
+//   },
+//   headerTitle: {
+//     fontSize: 24,
+//     fontWeight: "bold",
+//     color: "white",
+//     letterSpacing: 2,
+//   },
+//   loadingContainer: {
+//     flex: 1,
+//     justifyContent: "center",
+//     alignItems: "center",
+//     backgroundColor: "#FFF0F5",
+//   },
+//   loadingText: {
+//     marginTop: 10,
+//     fontSize: 16,
+//     color: "#1565C0",
+//     fontStyle: "italic",
+//   },
+//   mainContent: {
+//     flex: 1,
+//     padding: 10,
+//   },
+//   categoryContainer: {
+//     marginVertical: 10,
+//     backgroundColor: "white",
+//     borderRadius: 10,
+//     overflow: "hidden",
+//     elevation: 3,
+//     shadowColor: "#000",
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//   },
+//   categoryHeader: {
+//     padding: 15,
+//   },
+//   categoryHeaderText: {
+//     fontSize: 18,
+//     fontWeight: "bold",
+//     color: "white",
+//     textAlign: "center",
+//   },
+//   imageWrapper: {
+//     marginHorizontal: 5,
+//     position: "relative",
+//   },
+//   imageContainer: {
+//     padding: 5,
+//     backgroundColor: "white",
+//     borderRadius: 8,
+//     elevation: 2,
+//   },
+//   image: {
+//     width: 150,
+//     height: 150,
+//     borderRadius: 8,
+//   },
+//   selectedImage: {
+//     borderWidth: 3,
+//     borderColor: "#FF1493",
+//   },
+//   deleteButton: {
+//     position: "absolute",
+//     top: 10,
+//     right: 10,
+//     backgroundColor: "rgba(255, 255, 255, 0.9)",
+//     borderRadius: 12,
+//     padding: 4,
+//     zIndex: 1,
+//   },
+//   noItemsText: {
+//     padding: 20,
+//     textAlign: "center",
+//     color: "#FF1493",
+//     fontStyle: "italic",
+//     fontSize: 16,
+//   },
+//   outfitControls: {
+//     padding: 20,
+//     backgroundColor: "white",
+//     borderTopWidth: 1,
+//     borderTopColor: "#FFB6C1",
+//   },
+//   createOutfitButton: {
+//     marginBottom: 10,
+//     borderRadius: 25,
+//     overflow: "hidden",
+//   },
+//   gradientButton: {
+//     padding: 15,
+//     alignItems: "center",
+//   },
+//   createOutfitButtonDisabled: {
+//     opacity: 0.5,
+//   },
+//   createOutfitButtonText: {
+//     color: "white",
+//     fontSize: 18,
+//     fontWeight: "bold",
+//     letterSpacing: 1,
+//   },
+//   clearSelectionsButton: {
+//     backgroundColor: "#2196F3",
+//     padding: 15,
+//     borderRadius: 25,
+//     alignItems: "center",
+//   },
+//   clearSelectionsButtonText: {
+//     color: "white",
+//     fontSize: 18,
+//     fontWeight: "bold",
+//     letterSpacing: 1,
+//   },
+// });
+
+// export default GalleryScreen;
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -8,16 +371,16 @@ import {
   ActivityIndicator,
   Alert,
   StyleSheet,
+  ScrollView,
 } from "react-native";
 import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { db, storage } from "../firebase";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { handleCreateOutfit } from "../outfitfirestore";
-// Import the function
 
 const GalleryScreen = () => {
   const router = useRouter();
@@ -25,6 +388,7 @@ const GalleryScreen = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTop, setSelectedTop] = useState(null);
   const [selectedBottom, setSelectedBottom] = useState(null);
+  const [showTutorial, setShowTutorial] = useState(true);
   const isFocused = useIsFocused();
   const navigation = useNavigation();
 
@@ -77,8 +441,8 @@ const GalleryScreen = () => {
         createdAt: new Date().toISOString(),
       };
       try {
-        await handleCreateOutfit(newOutfit); // Use the imported function
-        Alert.alert("Success", "Outfit saved successfully!");
+        await handleCreateOutfit(newOutfit);
+        Alert.alert("Success", "Outfit created! View it in Mix & Match");
         router.push("Screens/MixandMatchScreen");
       } catch (error) {
         console.error("Error creating outfit:", error);
@@ -86,39 +450,66 @@ const GalleryScreen = () => {
       }
     } else {
       Alert.alert(
-        "Selection Required",
-        "Please select both a top and bottom item"
+        "Selection Needed",
+        "Please select both a top and bottom to create an outfit"
       );
     }
   };
 
   const handleDelete = async (item) => {
-    Alert.alert("Delete Item", "Are you sure you want to delete this?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteDoc(doc(db, "wardrobeItems", item.id));
-            if (item.storagePath) {
-              const storageRef = ref(storage, item.storagePath);
-              await deleteObject(storageRef);
+    Alert.alert(
+      "Delete Item",
+      "Are you sure you want to delete this item from your wardrobe?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, "wardrobeItems", item.id));
+              if (item.storagePath) {
+                const storageRef = ref(storage, item.storagePath);
+                await deleteObject(storageRef);
+              }
+              if (selectedTop?.id === item.id) setSelectedTop(null);
+              if (selectedBottom?.id === item.id) setSelectedBottom(null);
+              setImages((prevImages) =>
+                prevImages.filter((img) => img.id !== item.id)
+              );
+              Alert.alert("Success", "Item deleted from your wardrobe!");
+            } catch (error) {
+              console.error("Error deleting item:", error);
+              Alert.alert("Error", "Failed to delete item. Please try again!");
             }
-            if (selectedTop?.id === item.id) setSelectedTop(null);
-            if (selectedBottom?.id === item.id) setSelectedBottom(null);
-            setImages((prevImages) =>
-              prevImages.filter((img) => img.id !== item.id)
-            );
-            Alert.alert("Item deleted!");
-          } catch (error) {
-            console.error("Error deleting item:", error);
-            Alert.alert("Failed to delete. Try again!");
-          }
+          },
         },
-      },
-    ]);
+      ]
+    );
   };
+
+  const navItems = [
+    {
+      icon: "home",
+      label: "Home",
+      route: "Screens/HomeScreen",
+    },
+    {
+      icon: "add-circle",
+      label: "Add Item",
+      route: "Screens/upload",
+    },
+    {
+      icon: "checkroom",
+      label: "Outfits",
+      route: "Screens/OutfitScreen",
+    },
+    {
+      icon: "shuffle",
+      label: "Mix & Match",
+      route: "Screens/MixandMatchScreen",
+    },
+  ];
 
   const renderCategory = (category, items = []) => {
     return (
@@ -135,6 +526,21 @@ const GalleryScreen = () => {
             {category === "Bottoms" && selectedBottom && " - Selected!"}
           </Text>
         </LinearGradient>
+
+        {showTutorial && items.length > 0 && (
+          <View style={styles.tutorialContainer}>
+            <Text style={styles.tutorialText}>
+              Tap an item to select it for an outfit. Select both a top and
+              bottom to create a new outfit!
+            </Text>
+            <TouchableOpacity
+              style={styles.tutorialButton}
+              onPress={() => setShowTutorial(false)}
+            >
+              <Text style={styles.tutorialButtonText}>Got it!</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {items.length > 0 ? (
           <FlatList
@@ -157,6 +563,9 @@ const GalleryScreen = () => {
                         styles.selectedImage,
                     ]}
                   />
+                  <View style={styles.imageOverlay}>
+                    <Text style={styles.tapText}>Tap to select</Text>
+                  </View>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => handleDelete(item)}
@@ -169,7 +578,18 @@ const GalleryScreen = () => {
             showsHorizontalScrollIndicator={false}
           />
         ) : (
-          <Text style={styles.noItemsText}>No items!</Text>
+          <View style={styles.emptyStateContainer}>
+            <Ionicons name="shirt-outline" size={40} color="#FF1493" />
+            <Text style={styles.noItemsText}>
+              No items in your {category.toLowerCase()} yet!
+            </Text>
+            <TouchableOpacity
+              style={styles.addItemButton}
+              onPress={() => router.push("Screens/upload")}
+            >
+              <Text style={styles.addItemButtonText}>Add {category}</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </View>
     );
@@ -196,14 +616,27 @@ const GalleryScreen = () => {
     <View style={styles.container}>
       <LinearGradient colors={["#2196F3", "#1565C0"]} style={styles.header}>
         <Text style={styles.headerTitle}>YOUR WARDROBE</Text>
+        <Text style={styles.headerSubtitle}>
+          {images.length} items in your collection
+        </Text>
       </LinearGradient>
 
-      <View style={styles.mainContent}>
+      <ScrollView style={styles.mainContent}>
         {renderCategory("Tops", groupedImages["Tops"])}
         {renderCategory("Bottoms", groupedImages["Bottoms"])}
-      </View>
+      </ScrollView>
 
       <View style={styles.outfitControls}>
+        {(selectedTop || selectedBottom) && (
+          <View style={styles.selectionInfo}>
+            <Text style={styles.selectionText}>
+              {selectedTop ? "✓ Top selected" : "⨯ Select a top"}
+              {" | "}
+              {selectedBottom ? "✓ Bottom selected" : "⨯ Select a bottom"}
+            </Text>
+          </View>
+        )}
+
         <TouchableOpacity
           style={[
             styles.createOutfitButton,
@@ -217,19 +650,51 @@ const GalleryScreen = () => {
             colors={["#2196F3", "#1565C0"]}
             style={styles.gradientButton}
           >
-            <Text style={styles.createOutfitButtonText}>Preview outfits</Text>
+            <Text style={styles.createOutfitButtonText}>
+              {selectedTop && selectedBottom
+                ? "Create Outfit"
+                : "Select items to create outfit"}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.clearSelectionsButton}
-          onPress={() => {
-            setSelectedTop(null);
-            setSelectedBottom(null);
-          }}
-        >
-          <Text style={styles.clearSelectionsButtonText}>Clear Selection</Text>
-        </TouchableOpacity>
+        {(selectedTop || selectedBottom) && (
+          <TouchableOpacity
+            style={styles.clearSelectionsButton}
+            onPress={() => {
+              setSelectedTop(null);
+              setSelectedBottom(null);
+            }}
+          >
+            <Text style={styles.clearSelectionsButtonText}>
+              Clear Selection
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <View style={styles.bottomNav}>
+        {navItems.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.navItem}
+            onPress={() => router.push(item.route)}
+          >
+            <MaterialIcons
+              name={item.icon}
+              size={24}
+              color={item.label === "Gallery" ? "#1565C0" : "#4A5568"}
+            />
+            <Text
+              style={[
+                styles.navLabel,
+                item.label === "Gallery" && styles.activeNavLabel,
+              ]}
+            >
+              {item.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
@@ -250,6 +715,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
     letterSpacing: 2,
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: "rgba(255,255,255,0.8)",
+    marginTop: 5,
   },
   loadingContainer: {
     flex: 1,
@@ -278,6 +748,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
+  tutorialContainer: {
+    padding: 15,
+    backgroundColor: "#E3F2FD",
+    borderBottomWidth: 1,
+    borderBottomColor: "#BBDEFB",
+  },
+  tutorialText: {
+    fontSize: 14,
+    color: "#1565C0",
+    textAlign: "center",
+  },
+  tutorialButton: {
+    marginTop: 10,
+    alignSelf: "center",
+  },
+  tutorialButtonText: {
+    color: "#1565C0",
+    fontWeight: "bold",
+  },
   categoryHeader: {
     padding: 15,
   },
@@ -302,6 +791,20 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 8,
   },
+  imageOverlay: {
+    position: "absolute",
+    bottom: 10,
+    left: 5,
+    right: 5,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 5,
+    borderRadius: 4,
+  },
+  tapText: {
+    color: "white",
+    fontSize: 12,
+    textAlign: "center",
+  },
   selectedImage: {
     borderWidth: 3,
     borderColor: "#FF1493",
@@ -315,18 +818,42 @@ const styles = StyleSheet.create({
     padding: 4,
     zIndex: 1,
   },
+  emptyStateContainer: {
+    padding: 30,
+    alignItems: "center",
+  },
   noItemsText: {
-    padding: 20,
+    marginTop: 10,
     textAlign: "center",
     color: "#FF1493",
-    fontStyle: "italic",
     fontSize: 16,
+  },
+  addItemButton: {
+    marginTop: 15,
+    backgroundColor: "#FF1493",
+    padding: 10,
+    borderRadius: 20,
+  },
+  addItemButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
   outfitControls: {
     padding: 20,
     backgroundColor: "white",
     borderTopWidth: 1,
     borderTopColor: "#FFB6C1",
+  },
+  selectionInfo: {
+    marginBottom: 10,
+    padding: 10,
+    backgroundColor: "#E3F2FD",
+    borderRadius: 8,
+  },
+  selectionText: {
+    textAlign: "center",
+    color: "#1565C0",
+    fontSize: 14,
   },
   createOutfitButton: {
     marginBottom: 10,
@@ -354,9 +881,32 @@ const styles = StyleSheet.create({
   },
   clearSelectionsButtonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
     letterSpacing: 1,
+  },
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "white",
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#E1E8ED",
+  },
+  navItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 15,
+  },
+  navLabel: {
+    fontSize: 12,
+    marginTop: 4,
+    color: "#4A5568",
+  },
+  activeNavLabel: {
+    color: "#1565C0",
+    fontWeight: "bold",
   },
 });
 
