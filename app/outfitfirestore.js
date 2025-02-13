@@ -157,6 +157,17 @@ export const saveOutfit = async (outfit) => {
     throw new Error("Failed to save outfit.");
   }
 };
+// Delete Outfit
+export const deleteOutfit = async (id) => {
+  try {
+    const outfitRef = doc(collection(db, "outfits"), id);
+    await deleteDoc(outfitRef);
+    console.log("Outfit deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting outfit:", error);
+    throw error;
+  }
+};
 
 // Fetch all outfits
 export const getOutfits = async () => {
