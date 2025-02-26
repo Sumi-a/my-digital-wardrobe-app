@@ -101,8 +101,11 @@ import {
   getDocs,
   deleteDoc,
   doc,
+  query,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { serverTimestamp } from "firebase/firestore";
 
 // Fetch wardrobe items (tops and bottoms)
 export const fetchWardrobe = async () => {
@@ -123,24 +126,50 @@ export const fetchWardrobe = async () => {
   return wardrobe;
 };
 
+// Create outfit
+// export const handleCreateOutfit = async (newOutfit) => {
+//   try {
+//     const docRef = await addDoc(collection(db, "outfits"), {
+//       name: newOutfit.name || "Untitled Outfit",
+//       category: newOutfit.category || "No Category",
+//       top: newOutfit.top
+//         ? { id: newOutfit.top.id, url: newOutfit.top.url }
+//         : null,
+//       bottom: newOutfit.bottom
+//         ? { id: newOutfit.bottom.id, url: newOutfit.bottom.url }
+//         : null,
+//       createdAt: serverTimestamp(), // Firestore timestamp
+//     });
+//     console.log("Outfit created with ID:", docRef.id);
+//     return docRef.id;
+//   } catch (error) {
+//     console.error("Error creating outfit:", error);
+//     throw new Error("Failed to create outfit. Please try again.");
+//   }
+// };
+
 export const handleCreateOutfit = async (newOutfit) => {
   try {
+    console.log("Saving outfit:", newOutfit); // Debugging log
+
     const docRef = await addDoc(collection(db, "outfits"), {
       name: newOutfit.name || "Untitled Outfit",
       category: newOutfit.category || "No Category",
-      top: newOutfit.top
-        ? { id: newOutfit.top.id, url: newOutfit.top.url }
-        : null,
-      bottom: newOutfit.bottom
-        ? { id: newOutfit.bottom.id, url: newOutfit.bottom.url }
-        : null,
-      createdAt: new Date().toISOString(),
+      top:
+        newOutfit.top && newOutfit.top.url
+          ? { id: newOutfit.top.id, url: newOutfit.top.url }
+          : null,
+      bottom:
+        newOutfit.bottom && newOutfit.bottom.url
+          ? { id: newOutfit.bottom.id, url: newOutfit.bottom.url }
+          : null,
+      createdAt: serverTimestamp(), // Firestore timestamp
     });
+
     console.log("Outfit created with ID:", docRef.id);
     return docRef.id;
   } catch (error) {
     console.error("Error creating outfit:", error);
-    throw new Error("Failed to create outfit. Please try again.");
   }
 };
 
@@ -149,7 +178,7 @@ export const saveOutfit = async (outfit) => {
   try {
     await addDoc(collection(db, "outfits"), {
       ...outfit,
-      createdAt: new Date().toISOString(),
+      createdAt: serverTimestamp(), // Use Firestore timestamp
     });
     console.log("Outfit saved successfully!");
   } catch (error) {
@@ -157,6 +186,7 @@ export const saveOutfit = async (outfit) => {
     throw new Error("Failed to save outfit.");
   }
 };
+
 // Delete Outfit
 export const deleteOutfit = async (id) => {
   try {
@@ -173,15 +203,19 @@ export const deleteOutfit = async (id) => {
 export const getOutfits = async () => {
   const outfits = [];
   try {
-    const querySnapshot = await getDocs(collection(db, "outfits"));
+    // Ensure outfits are sorted by 'createdAt' in descending order
+    const q = query(collection(db, "outfits"), orderBy("createdAt", "asc"));
+    const querySnapshot = await getDocs(q);
+
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       outfits.push({
         id: doc.id,
-        top: data.top?.url,
-        bottom: data.bottom?.url,
+        top: data.top?.url || null,
+        bottom: data.bottom?.url || null,
         name: data.name || "Untitled Outfit",
         category: data.category || "No Category",
+        createdAt: data.createdAt || null, // Ensure timestamp exists
       });
     });
     console.log("Outfits fetched:", outfits);

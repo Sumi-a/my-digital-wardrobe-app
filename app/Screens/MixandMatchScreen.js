@@ -269,7 +269,7 @@
 // });
 
 // export default MixAndMatchScreen;
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -281,15 +281,14 @@ import {
   Dimensions,
   ActivityIndicator,
   SafeAreaView,
-} from 'react-native';
-import { fetchWardrobe, saveOutfit } from '../outfitfirestore';
-import { useRouter } from 'expo-router';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+} from "react-native";
+import { fetchWardrobe, saveOutfit } from "../outfitfirestore";
+import { useRouter } from "expo-router";
+import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 const imageWidth = width * 0.4;
 const imageHeight = imageWidth * 1.2;
-
 
 const MixAndMatchScreen = () => {
   const [wardrobe, setWardrobe] = useState({ tops: [], bottoms: [] });
@@ -309,11 +308,11 @@ const MixAndMatchScreen = () => {
       setWardrobe(data);
       setIsLoading(false);
     } catch (error) {
-      console.error('Error loading wardrobe:', error);
+      console.error("Error loading wardrobe:", error);
       Alert.alert(
-        'Error',
-        'Could not load your wardrobe. Please check your connection and try again.',
-        [{ text: 'Retry', onPress: loadWardrobe }]
+        "Error",
+        "Could not load your wardrobe. Please check your connection and try again.",
+        [{ text: "Retry", onPress: loadWardrobe }]
       );
     }
   };
@@ -326,14 +325,17 @@ const MixAndMatchScreen = () => {
     const selectedBottom = wardrobe.bottoms[selectedBottomIndex];
 
     if (!selectedTop || !selectedBottom) {
-      Alert.alert('Oops!', 'Please make sure both top and bottom are selected.');
+      Alert.alert(
+        "Oops!",
+        "Please make sure both top and bottom are selected."
+      );
       setIsSaving(false);
       return;
     }
 
     const newOutfit = {
-      name: 'Custom Outfit',
-      category: 'Mixed',
+      name: "Custom Outfit",
+      category: "Mixed",
       top: selectedTop.url,
       bottom: selectedBottom.url,
       createdAt: new Date().toISOString(),
@@ -342,12 +344,17 @@ const MixAndMatchScreen = () => {
     try {
       await saveOutfit(newOutfit);
       Alert.alert(
-        'Success!', 
-        'Your outfit has been saved to your collection.', 
-        [{ text: 'View Outfits', onPress: () => router.push('Screens/OutfitScreen') }]
+        "Success!",
+        "Your outfit has been saved to your collection.",
+        [
+          {
+            text: "View Outfits",
+            onPress: () => router.push("Screens/OutfitScreen"),
+          },
+        ]
       );
     } catch (error) {
-      Alert.alert('Error', 'Unable to save outfit. Please try again.');
+      Alert.alert("Error", "Unable to save outfit. Please try again.");
     }
     setIsSaving(false);
   };
@@ -372,12 +379,14 @@ const MixAndMatchScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.title}>Create Your Outfit</Text>
-        <Text style={styles.subtitle}>Mix and match to find your perfect combination</Text>
+        <Text style={styles.subtitle}>
+          Mix and match to find your perfect combination
+        </Text>
 
         {/* Tops Section */}
         <View style={styles.sectionContainer}>
@@ -385,7 +394,11 @@ const MixAndMatchScreen = () => {
           <View style={styles.itemContainer}>
             <TouchableOpacity
               style={styles.navigationButton}
-              onPress={() => setSelectedTopIndex(navigateItem(wardrobe.tops, selectedTopIndex, -1))}
+              onPress={() =>
+                setSelectedTopIndex(
+                  navigateItem(wardrobe.tops, selectedTopIndex, -1)
+                )
+              }
             >
               <MaterialIcons name="chevron-left" size={30} color="#FFF" />
             </TouchableOpacity>
@@ -400,7 +413,11 @@ const MixAndMatchScreen = () => {
 
             <TouchableOpacity
               style={styles.navigationButton}
-              onPress={() => setSelectedTopIndex(navigateItem(wardrobe.tops, selectedTopIndex, 1))}
+              onPress={() =>
+                setSelectedTopIndex(
+                  navigateItem(wardrobe.tops, selectedTopIndex, 1)
+                )
+              }
             >
               <MaterialIcons name="chevron-right" size={30} color="#FFF" />
             </TouchableOpacity>
@@ -413,7 +430,11 @@ const MixAndMatchScreen = () => {
           <View style={styles.itemContainer}>
             <TouchableOpacity
               style={styles.navigationButton}
-              onPress={() => setSelectedBottomIndex(navigateItem(wardrobe.bottoms, selectedBottomIndex, -1))}
+              onPress={() =>
+                setSelectedBottomIndex(
+                  navigateItem(wardrobe.bottoms, selectedBottomIndex, -1)
+                )
+              }
             >
               <MaterialIcons name="chevron-left" size={30} color="#FFF" />
             </TouchableOpacity>
@@ -428,7 +449,11 @@ const MixAndMatchScreen = () => {
 
             <TouchableOpacity
               style={styles.navigationButton}
-              onPress={() => setSelectedBottomIndex(navigateItem(wardrobe.bottoms, selectedBottomIndex, 1))}
+              onPress={() =>
+                setSelectedBottomIndex(
+                  navigateItem(wardrobe.bottoms, selectedBottomIndex, 1)
+                )
+              }
             >
               <MaterialIcons name="chevron-right" size={30} color="#FFF" />
             </TouchableOpacity>
@@ -442,7 +467,7 @@ const MixAndMatchScreen = () => {
             onPress={handleRandomize}
           >
             <MaterialIcons name="shuffle" size={24} color="#FFF" />
-            <Text style={styles.buttonText}>Randomize</Text>
+            <Text style={styles.buttonText}>Random Match</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -451,34 +476,52 @@ const MixAndMatchScreen = () => {
             disabled={isSaving}
           >
             <MaterialIcons name="save" size={24} color="#FFF" />
-            <Text style={styles.buttonText}>{isSaving ? 'Saving...' : 'Save Outfit'}</Text>
+            <Text style={styles.buttonText}>
+              {isSaving ? "Saving..." : "Save Outfit"}
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.navItem}
-          onPress={() => router.push('Screens/HomeScreen')}
+          onPress={() => router.push("Screens/HomeScreen")}
         >
-          <MaterialIcons name="home" size={24} color="#1565C0" />
+          <MaterialIcons name="home" size={24} color="#757575" />
           <Text style={styles.navLabel}>Home</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.navItem}
-          onPress={() => router.push('Screens/GalleryScreen')}
+          onPress={() => router.push("Screens/upload")}
         >
-          <MaterialIcons name="photo-library" size={24} color="#1565C0" />
+          <MaterialIcons name="add-circle" size={24} color="#757575" />
+          <Text style={styles.navLabel}>Add Item</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => router.push("Screens/GalleryScreen")}
+        >
+          <MaterialIcons name="photo-library" size={24} color="#757575" />
           <Text style={styles.navLabel}>Wardrobe</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => router.push('Screens/OutfitScreen')}
+        <TouchableOpacity
+          style={[styles.navItem, styles.activeNavItem]}
+          onPress={() => router.push("Screens/MixandMatchScreen")}
         >
-          <MaterialIcons name="checkroom" size={24} color="#1565C0" />
+          <MaterialIcons name="shuffle" size={24} color="#3a7bd5" />
+          <Text style={[styles.navLabel, styles.activeNavLabel]}>Mix & Match</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.navItem}
+          onPress={() => router.push("Screens/OutfitScreen")}
+        >
+          <MaterialIcons name="checkroom" size={24} color="#757575" />
           <Text style={styles.navLabel}>Outfits</Text>
         </TouchableOpacity>
       </View>
@@ -489,17 +532,17 @@ const MixAndMatchScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFF0F5',
+    backgroundColor: "#F5F7FA",
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFF0F5',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFF0F5",
   },
   loadingText: {
     marginTop: 10,
-    color: '#666',
+    color: "#666",
     fontSize: 16,
   },
   scrollContent: {
@@ -507,15 +550,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1565C0',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#1565C0",
+    textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     marginBottom: 24,
   },
   sectionContainer: {
@@ -523,25 +566,25 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 12,
     paddingLeft: 4,
   },
   itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   navigationButton: {
-    backgroundColor: '#FF1493',
+    backgroundColor: "#FF1493",
     width: 40,
     height: 40,
     borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -550,65 +593,79 @@ const styles = StyleSheet.create({
     width: imageWidth,
     height: imageHeight,
     borderRadius: 12,
-    backgroundColor: '#FFF',
-    overflow: 'hidden',
+    backgroundColor: "#FFF",
+    overflow: "hidden",
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexDirection: "row",
+    justifyContent: "space-around",
     marginTop: 20,
     marginBottom: 30,
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 12,
     borderRadius: 8,
     minWidth: width * 0.4,
-    justifyContent: 'center',
+    justifyContent: "center",
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
   randomizeButton: {
-    backgroundColor: '#1565C0',
+    backgroundColor: "#1565C0",
   },
   saveButton: {
-    backgroundColor: '#FF1493',
+    backgroundColor: "#FF1493",
   },
   buttonText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginLeft: 8,
   },
   bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    paddingVertical: 10,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 10,
+    backgroundColor: "white",
     borderTopWidth: 1,
-    borderTopColor: '#E1E8ED',
+    borderTopColor: "#EEEEEE",
+    elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   navItem: {
-    alignItems: 'center',
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 24,
+  },
+  activeNavItem: {
+    backgroundColor: "#E3F2FD",
   },
   navLabel: {
     fontSize: 12,
+    color: "#757575",
     marginTop: 4,
-    color: '#4A5568',
+  },
+  activeNavLabel: {
+    color: "#3a7bd5",
+    fontWeight: "bold",
   },
 });
 
