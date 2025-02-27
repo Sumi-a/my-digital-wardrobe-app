@@ -73,7 +73,7 @@ const LoginScreen = ({ isLoggedIn }) => {
       >
         <View style={styles.headerContainer}>
           <MaterialIcons name="style" size={48} color="#4A90E2" />
-          <Text style={styles.headerText}>Digital Wardrobe</Text>
+          <Text style={styles.headerText}>THE VAULT</Text>
           <Text style={styles.subHeaderText}>Welcome back!</Text>
         </View>
 

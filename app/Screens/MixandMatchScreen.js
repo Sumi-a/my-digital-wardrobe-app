@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   navigationButton: {
-    backgroundColor: "#FF1493",
+    backgroundColor: "#2196F3",
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -628,7 +628,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1565C0",
   },
   saveButton: {
-    backgroundColor: "#FF1493",
+    backgroundColor: "#2196F3",
   },
   buttonText: {
     color: "#FFF",
