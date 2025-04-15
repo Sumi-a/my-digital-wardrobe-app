@@ -147,7 +147,7 @@ const OutfitScreen = () => {
           />
         )}
 
-        {/* ✅ Updated Bottom Navigation */}
+        {/*  Updated Bottom Navigation */}
         <View style={styles.bottomNav}>
           <TouchableOpacity
             style={styles.navItem}
