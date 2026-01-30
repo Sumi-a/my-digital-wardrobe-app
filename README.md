@@ -1,4 +1,4 @@
-# 👗 My Digital Wardrobe
+# My Digital Wardrobe
 
 Welcome to **My Digital Wardrobe** — a mobile app built with [Expo](https://expo.dev) and React Native that helps users upload, categorize, and mix-and-match clothing items to create and save stylish outfits.
 
